@@ -8,7 +8,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     - name: Build Blender Addon
-      uses: ./.github/actions/blender-addon-build
+      uses: ./.github/blender-addon-build
       with:
         name: 'Asset Packer'
         name-suffix: 'commit-hash'
