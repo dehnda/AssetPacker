@@ -1,3 +1,4 @@
+on: push
 jobs:
   # This workflow contains a single job called "greet"
   Build:
