@@ -1,7 +1,7 @@
 bl_info = {
-    "name": "asset_exporter",
+    "name": "Asset Packer",
     "author": "Daniel Dehne",
-    "description": "",
+    "description": "Decimate, PBR Setup and export multiple texture resolutions",
     "blender": (4, 0, 0),
     "version": (0, 0, 1),
     "location": "",

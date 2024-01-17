@@ -22,7 +22,7 @@ class ImportFbxOperator(Operator, ImportHelper):
     bl_label = "Import FBX"
     filename_ext = ".fbx"
 
-    # Define a property to store the file path
+    # TODO: move this to the settings group
     filepath: StringProperty(
         name="File Path",
         description="File path used for importing FBX",
@@ -39,7 +39,7 @@ class ImportFbxOperator(Operator, ImportHelper):
             obj = bpy.context.selected_objects[0]
             if obj:
                 self.create_pbr_material(obj)
-                # TODO: refactor thats ugly
+                # TODO: refactor thats ugly and make it settable?
                 lod_1 = self.copy_object(obj)
                 lod_1.location.y += 2.0
                 lod_2 = self.copy_object(lod_1)
@@ -60,6 +60,7 @@ class ImportFbxOperator(Operator, ImportHelper):
         if obj.type == "MESH":
             modifier = obj.modifiers.new(name="Decimate", type="DECIMATE")
             modifier.ratio = ratio
+            # TODO make this settable with a checkbox
             # bpy.ops.object.modifier_apply(modifier='Decimate')
             self.report({"INFO"}, "Decimate Modifier applied to the imported mesh.")
         else:
@@ -134,6 +135,7 @@ class ImportFbxOperator(Operator, ImportHelper):
         # Create nodes for each texture type
         texture_nodes = {}
         # TODO: make the path relative to the mesh maybe and setable in settings?
+        # or maybe selectable too?
         base_path = "X:\\Tests\\asset_exporter\\"
         for filename in self.files_in_folder(base_path):
             self.report({"INFO"}, f"filename: {filename}")
