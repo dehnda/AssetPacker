@@ -1,9 +1,9 @@
 import bpy
 from bpy.types import Panel
-from bpy.props import FloatProperty
 
 
-class TabDecimate(Panel):
+class AP_PT_TabDecimate(Panel):
+    bl_parent_id = "AP_PT_MainPanel"
     bl_idname = "TAB_PT_Decimate"
     bl_label = "Decimate"
     bl_space_type = "VIEW_3D"

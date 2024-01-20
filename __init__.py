@@ -10,36 +10,36 @@ bl_info = {
 }
 
 import bpy
-from bpy.types import Operator
-from bpy.props import StringProperty, BoolProperty, FloatProperty
-from bpy_extras.io_utils import ImportHelper
+from bpy.types import PropertyGroup, Image
+from bpy.props import FloatProperty, PointerProperty, StringProperty, BoolProperty
 
-from asset_packer.gui.main_panel import MainPanel
-from asset_packer.gui.decimate_tab import TabDecimate
-from asset_packer.operators.import_fbx import ImportFbxOperator
+from AssetPacker.gui.main_panel import AP_PT_MainPanel
+from AssetPacker.gui.decimate_tab import AP_PT_TabDecimate
+from AssetPacker.gui.export_tab import AP_PT_ExportTab
+from AssetPacker.operators.import_fbx import ImportFbxOperator
 
 
-LAYOUTS = (MainPanel, TabDecimate)
+LAYOUTS = (AP_PT_MainPanel, AP_PT_TabDecimate, AP_PT_ExportTab)
 OPERATORS = (ImportFbxOperator,)
 
 
 # Define a property group
-class DecimateSettings(bpy.types.PropertyGroup):
-    lod_ratio_1: bpy.props.FloatProperty(
+class DecimateSettings(PropertyGroup):
+    lod_ratio_1: FloatProperty(
         name="lod_ratio_1",
         description="This sets the ratio for LOD 1",
         default=0.7,
         min=0.0,
         max=1.0,
     )
-    lod_ratio_2: bpy.props.FloatProperty(
+    lod_ratio_2: FloatProperty(
         name="LOD ratio 2",
         description="This sets the ratio for LOD 2",
         default=0.7,
         min=0.0,
         max=1.0,
     )
-    lod_ratio_3: bpy.props.FloatProperty(
+    lod_ratio_3: FloatProperty(
         name="LOD ratio 3",
         description="This sets the ratio for LOD 1",
         default=0.7,
@@ -48,24 +48,49 @@ class DecimateSettings(bpy.types.PropertyGroup):
     )
 
 
+class PBRTexturesSettings(PropertyGroup):
+    base_color: PointerProperty(name="Base Color", type=Image)
+    metallic: PointerProperty(name="Metallic", type=Image)
+    normal: PointerProperty(name="Normal", type=Image)
+    emission: PointerProperty(name="Emission", type=Image)
+    ao: PointerProperty(name="Ambient Occlusion", type=Image)
+    roughness: PointerProperty(name="Roughness", type=Image)
+    opacity: PointerProperty(name="Opacity", type=Image)
+    folder_export_path: StringProperty(name="folder_export_path")
+    export_lods: BoolProperty(name="export_lods")
+
+
+SETTINGS: dict = {
+    "decimate_settings": DecimateSettings,
+    "pbr_texture_settings": PBRTexturesSettings,
+}
+
+
 # Register classes
 def register():
+    bpy.utils.register_class(DecimateSettings)
+    bpy.types.Scene.decimate_settings = bpy.props.PointerProperty(type=DecimateSettings)
+
+    bpy.utils.register_class(PBRTexturesSettings)
+    bpy.types.Scene.pbr_textures_settings = bpy.props.PointerProperty(
+        type=PBRTexturesSettings
+    )
+
     for item in LAYOUTS:
         bpy.utils.register_class(item)
 
     for operator in OPERATORS:
         bpy.utils.register_class(operator)
 
-    bpy.utils.register_class(DecimateSettings)
-    bpy.types.Scene.decimate_settings = bpy.props.PointerProperty(type=DecimateSettings)
-
 
 def unregister():
+    bpy.utils.unregister_class(PBRTexturesSettings)
+    del bpy.types.Scene.pbr_textures_settings
+    bpy.utils.unregister_class(DecimateSettings)
+    del bpy.types.Scene.decimate_settings
+
     for item in LAYOUTS:
         bpy.utils.unregister_class(item)
 
     for operator in OPERATORS:
         bpy.utils.unregister_class(operator)
-
-    bpy.utils.unregister_class(DecimateSettings)
-    del bpy.types.Scene.decimate_settings
