@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import bpy
 from bpy.types import Operator, Context
@@ -6,15 +7,6 @@ from bpy.props import StringProperty, BoolProperty, FloatProperty
 from bpy_extras.io_utils import ImportHelper
 
 # TODO: make this suffixes settable
-suffixes = {
-    "albedo": "_albedo",
-    "ao": "_ao",
-    "displacement": "_displacement",
-    "metallic": "_metallic",
-    "normal": "_normal",
-    "roughness": "_roughness",
-    "emission": "_emission",
-}
 
 
 class ImportFbxOperator(Operator, ImportHelper):
@@ -22,6 +14,7 @@ class ImportFbxOperator(Operator, ImportHelper):
     bl_label = "Import FBX"
     filename_ext = ".fbx"
 
+    suffixes: dict = {}
     # TODO: move this to the settings group
     filepath: StringProperty(
         name="File Path",
@@ -30,6 +23,16 @@ class ImportFbxOperator(Operator, ImportHelper):
     )
 
     def execute(self, context: Context):
+        self.suffixes = {
+            "albedo": context.scene.suffix_settings.base_color,
+            "ao": context.scene.suffix_settings.ao,
+            "displacement": context.scene.suffix_settings.displacement,
+            "metallic": context.scene.suffix_settings.metallic,
+            "normal": context.scene.suffix_settings.normal,
+            "roughness": context.scene.suffix_settings.roughness,
+            "emission": context.scene.suffix_settings.emission,
+        }
+
         # Check if a file path is provided
         if self.filepath:
             # Import the FBX file
@@ -38,7 +41,7 @@ class ImportFbxOperator(Operator, ImportHelper):
 
             obj = bpy.context.selected_objects[0]
             if obj:
-                self.create_pbr_material(obj)
+                self.create_pbr_material(obj, context)
                 # TODO: refactor thats ugly and make it settable?
                 lod_1 = self.copy_object(obj)
                 lod_1.location.y += 2.0
@@ -46,23 +49,24 @@ class ImportFbxOperator(Operator, ImportHelper):
                 lod_2.location.y += 2.0
                 lod_3 = self.copy_object(lod_2)
                 lod_3.location.y += 2.0
-                self.decimate(lod_1, context.scene.decimate_settings.lod_ratio_1)
-                self.decimate(lod_2, context.scene.decimate_settings.lod_ratio_2)
-                self.decimate(lod_3, context.scene.decimate_settings.lod_ratio_3)
+                self.decimate(lod_1, context.scene.decimate_settings.lod_ratio_1, context)
+                self.decimate(lod_2, context.scene.decimate_settings.lod_ratio_2, context)
+                self.decimate(lod_3, context.scene.decimate_settings.lod_ratio_3, context)
 
         else:
             self.report({"ERROR"}, "No file selected")
 
         return {"FINISHED"}
 
-    def decimate(self, obj, ratio):
+    def decimate(self, obj, ratio, context: Context):
         self.select_object(obj)
         if obj.type == "MESH":
             modifier = obj.modifiers.new(name="Decimate", type="DECIMATE")
             modifier.ratio = ratio
             # TODO make this settable with a checkbox
-            # bpy.ops.object.modifier_apply(modifier='Decimate')
-            self.report({"INFO"}, "Decimate Modifier applied to the imported mesh.")
+            if context.scene.general_settings.decimate_on_import:
+                bpy.ops.object.modifier_apply(modifier="Decimate")
+                self.report({"INFO"}, "Decimate Modifier applied to the imported mesh.")
         else:
             self.report({"ERROR"}, "The selected object is not a mesh.")
 
@@ -76,7 +80,7 @@ class ImportFbxOperator(Operator, ImportHelper):
         bpy.context.collection.objects.link(duplicate)
         return duplicate
 
-    def create_pbr_material(self, obj):
+    def create_pbr_material(self, obj, context: Context):
         self.select_object(obj)
         if obj.material_slots and obj.material_slots[0].material:
             material = obj.material_slots[0].material
@@ -136,10 +140,15 @@ class ImportFbxOperator(Operator, ImportHelper):
         texture_nodes = {}
         # TODO: make the path relative to the mesh maybe and setable in settings?
         # or maybe selectable too?
-        base_path = "X:\\Tests\\asset_exporter\\"
+        base_path = Path(self.filepath).parent.joinpath(
+            context.scene.general_settings.import_folder
+        )
+        # TODO make error message
+        if not os.path.exists(base_path):
+            return
         for filename in self.files_in_folder(base_path):
             self.report({"INFO"}, f"filename: {filename}")
-            for tex_type, suffix in suffixes.items():
+            for tex_type, suffix in self.suffixes.items():
                 if suffix in filename:
                     texture_node = tree.nodes.new(type="ShaderNodeTexImage")
                     texture_node.image = bpy.data.images.load(
@@ -147,7 +156,7 @@ class ImportFbxOperator(Operator, ImportHelper):
                     )
                     texture_node.location = (
                         -800,
-                        200 - list(suffixes.keys()).index(tex_type) * 300,
+                        200 - list(self.suffixes.keys()).index(tex_type) * 300,
                     )  # Adjust node positions
                     texture_nodes[tex_type] = texture_node
                     # connect uv mapping to texture nodes

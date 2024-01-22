@@ -1,8 +1,6 @@
 import bpy
 from bpy.types import Context, UILayout
 
-from AssetPacker.gui.decimate_tab import AP_PT_TabDecimate
-
 
 # Define main panel for all tabs
 class AP_PT_MainPanel(bpy.types.Panel):
@@ -12,5 +10,36 @@ class AP_PT_MainPanel(bpy.types.Panel):
     bl_region_type = "UI"
     bl_category = "Asset Packer"
 
+    # TODO duplicate move out
+    texture_names = [
+        "base_color",
+        "metallic",
+        "normal",
+        "emission",
+        "displacement",
+        "ao",
+        "roughness",
+        "opacity",
+    ]
+
     def draw(self, context: Context):
-        layout = self.layout.row().label(text="Parent panel")
+        layout = self.layout
+        layout.label(text="Import Settings")
+        row = layout.row()
+        row.separator()
+        box = row.box()
+        box.prop(
+            context.scene.general_settings,
+            "import_folder",
+            text="Texture Path",
+        )
+        box.separator()
+        box.prop(
+            context.scene.general_settings,
+            "decimate_on_import",
+            text="Deciname LODs on import automatically",
+        )
+        box.separator()
+        box.label(text="Suffix Settings")
+        for name in self.texture_names:
+            box.prop(context.scene.suffix_settings, name, text=name)

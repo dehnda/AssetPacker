@@ -14,7 +14,18 @@ class AP_PT_ExportTab(Panel):
         # Decimate
         layout = self.layout
 
-        # layout.operator("asset_packer.pbr_textures_export")
-        # layout.prop(context.scene.decimate_settings, "lod_ratio_1", text="LOD 1 ratio")
-        # layout.prop(context.scene.decimate_settings, "lod_ratio_2", text="LOD 2 ratio")
-        # layout.prop(context.scene.decimate_settings, "lod_ratio_3", text="LOD 3 ratio")
+        layout.prop(
+            context.scene.pbr_textures_settings, "export_lods", text="Export LODs"
+        )
+        layout.prop(
+            context.scene.pbr_textures_settings,
+            "folder_export_path",
+            text="Export Dir",
+        )
+        layout.prop(
+            context.scene.pbr_textures_settings,
+            "export_resolutions",
+            text="Resolutions",
+        )
+        layout.separator()
+        layout.operator("asset_packer.pbr_textures_export")

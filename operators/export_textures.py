@@ -2,13 +2,14 @@ import bpy
 from bpy.types import Operator, Context
 
 
-class TextureExporter(Operator):
+class TextureExporterOperator(Operator):
     bl_idname = "asset_packer.pbr_textures_export"
-    bl_label = "Import FBX"
+    bl_label = "Export Textures"
     texture_names = [
         "base_color",
         "metallic",
         "normal",
+        "displacement",
         "emission",
         "ao",
         "roughness",
