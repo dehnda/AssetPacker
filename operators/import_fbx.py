@@ -39,6 +39,11 @@ class ImportFbxOperator(Operator, ImportHelper):
             bpy.ops.import_scene.fbx(filepath=self.filepath)
             self.report({"INFO"}, f"FBX file '{self.filepath}' imported successfully")
 
+            # set export base path for export textures operator
+            context.scene.pbr_textures_settings.folder_export_base_path = (
+                Path(self.filepath).parent.absolute().as_posix()
+            )
+
             obj = bpy.context.selected_objects[0]
             if obj:
                 self.create_pbr_material(obj, context)
@@ -49,9 +54,15 @@ class ImportFbxOperator(Operator, ImportHelper):
                 lod_2.location.y += 2.0
                 lod_3 = self.copy_object(lod_2)
                 lod_3.location.y += 2.0
-                self.decimate(lod_1, context.scene.decimate_settings.lod_ratio_1, context)
-                self.decimate(lod_2, context.scene.decimate_settings.lod_ratio_2, context)
-                self.decimate(lod_3, context.scene.decimate_settings.lod_ratio_3, context)
+                self.decimate(
+                    lod_1, context.scene.decimate_settings.lod_ratio_1, context
+                )
+                self.decimate(
+                    lod_2, context.scene.decimate_settings.lod_ratio_2, context
+                )
+                self.decimate(
+                    lod_3, context.scene.decimate_settings.lod_ratio_3, context
+                )
 
         else:
             self.report({"ERROR"}, "No file selected")
@@ -159,7 +170,17 @@ class ImportFbxOperator(Operator, ImportHelper):
                         200 - list(self.suffixes.keys()).index(tex_type) * 300,
                     )  # Adjust node positions
                     texture_nodes[tex_type] = texture_node
-                    # connect uv mapping to texture nodes
+
+        # assign current loaded textures to export settings
+        context.scene.pbr_textures_settings.base_color = texture_nodes["albedo"].image
+        context.scene.pbr_textures_settings.ao = texture_nodes["ao"].image
+        context.scene.pbr_textures_settings.displacement = texture_nodes[
+            "displacement"
+        ].image
+        context.scene.pbr_textures_settings.metallic = texture_nodes["metallic"].image
+        context.scene.pbr_textures_settings.normal = texture_nodes["normal"].image
+        context.scene.pbr_textures_settings.roughness = texture_nodes["roughness"].image
+        # context.scene.pbr_textures_settings.emission = texture_nodes["emission"].image
 
         # link all maps
         for tex_type, node in texture_nodes.items():

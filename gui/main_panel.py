@@ -37,7 +37,7 @@ class AP_PT_MainPanel(bpy.types.Panel):
         box.prop(
             context.scene.general_settings,
             "decimate_on_import",
-            text="Deciname LODs on import automatically",
+            text="Decimate LODs on import automatically",
         )
         box.separator()
         box.label(text="Suffix Settings")

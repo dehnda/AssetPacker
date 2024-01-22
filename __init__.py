@@ -113,10 +113,13 @@ class PBRTexturesSettings(PropertyGroup):
     metallic: PointerProperty(name="Metallic", type=Image)
     normal: PointerProperty(name="Normal", type=Image)
     emission: PointerProperty(name="Emission", type=Image)
+    displacment: PointerProperty(name="Displacement", type=Image)
     ao: PointerProperty(name="Ambient Occlusion", type=Image)
     roughness: PointerProperty(name="Roughness", type=Image)
     opacity: PointerProperty(name="Opacity", type=Image)
-    folder_export_path: StringProperty(name="folder_export_path", subtype="DIR_PATH")
+    folder_export_path: StringProperty(
+        name="folder_export_path", subtype="DIR_PATH", default="export/"
+    )
     export_lods: BoolProperty(name="export_lods", default=True)
     export_resolutions: EnumProperty(
         name="export_resolutions",
@@ -129,6 +132,7 @@ class PBRTexturesSettings(PropertyGroup):
         options={"ENUM_FLAG"},
         default={"4k", "2k", "1k", "512"},
     )
+    folder_export_base_path: StringProperty(name="folder_export_base_path")
 
 
 def register():
