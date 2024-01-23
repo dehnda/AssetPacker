@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 import bpy
-from bpy.types import Operator, Context
+from bpy.types import Operator, Context, Object
 from bpy.props import StringProperty, BoolProperty, FloatProperty
 from bpy_extras.io_utils import ImportHelper
 
@@ -44,7 +44,7 @@ class ImportFbxOperator(Operator, ImportHelper):
                 Path(self.filepath).parent.absolute().as_posix()
             )
 
-            obj = bpy.context.selected_objects[0]
+            obj: Object = bpy.context.selected_objects[0]
             if obj:
                 self.create_pbr_material(obj, context)
                 # TODO: refactor thats ugly and make it settable?
@@ -63,6 +63,12 @@ class ImportFbxOperator(Operator, ImportHelper):
                 self.decimate(
                     lod_3, context.scene.decimate_settings.lod_ratio_3, context
                 )
+
+                # assign objects for export
+                context.scene.decimate_settings.lod_mesh_0 = obj
+                context.scene.decimate_settings.lod_mesh_1 = lod_1
+                context.scene.decimate_settings.lod_mesh_2 = lod_2
+                context.scene.decimate_settings.lod_mesh_3 = lod_3
 
         else:
             self.report({"ERROR"}, "No file selected")
@@ -172,15 +178,28 @@ class ImportFbxOperator(Operator, ImportHelper):
                     texture_nodes[tex_type] = texture_node
 
         # assign current loaded textures to export settings
-        context.scene.pbr_textures_settings.albedo = texture_nodes["albedo"].image
-        context.scene.pbr_textures_settings.ao = texture_nodes["ao"].image
-        context.scene.pbr_textures_settings.displacement = texture_nodes[
-            "displacement"
-        ].image
-        context.scene.pbr_textures_settings.metallic = texture_nodes["metallic"].image
-        context.scene.pbr_textures_settings.normal = texture_nodes["normal"].image
-        context.scene.pbr_textures_settings.roughness = texture_nodes["roughness"].image
-        context.scene.pbr_textures_settings.emission = texture_nodes["emission"].image
+        if "albedo" in texture_nodes.keys():
+            context.scene.pbr_textures_settings.albedo = texture_nodes["albedo"].image
+        if "ao" in texture_nodes.keys():
+            context.scene.pbr_textures_settings.ao = texture_nodes["ao"].image
+        if "displacement" in texture_nodes.keys():
+            context.scene.pbr_textures_settings.displacement = texture_nodes[
+                "displacement"
+            ].image
+        if "metallic" in texture_nodes.keys():
+            context.scene.pbr_textures_settings.metallic = texture_nodes[
+                "metallic"
+            ].image
+        if "normal" in texture_nodes.keys():
+            context.scene.pbr_textures_settings.normal = texture_nodes["normal"].image
+        if "roughness" in texture_nodes.keys():
+            context.scene.pbr_textures_settings.roughness = texture_nodes[
+                "roughness"
+            ].image
+        if "emission" in texture_nodes.keys():
+            context.scene.pbr_textures_settings.emission = texture_nodes[
+                "emission"
+            ].image
 
         # link all maps
         for tex_type, node in texture_nodes.items():

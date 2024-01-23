@@ -10,7 +10,7 @@ bl_info = {
 }
 
 import bpy
-from bpy.types import PropertyGroup, Image
+from bpy.types import PropertyGroup, Image, Object
 from bpy.props import (
     FloatProperty,
     PointerProperty,
@@ -106,6 +106,10 @@ class DecimateSettings(PropertyGroup):
         min=0.0,
         max=1.0,
     )
+    lod_mesh_0: PointerProperty(name="lod0", type=Object)
+    lod_mesh_1: PointerProperty(name="lod1", type=Object)
+    lod_mesh_2: PointerProperty(name="lod2", type=Object)
+    lod_mesh_3: PointerProperty(name="lod3", type=Object)
 
 
 class PBRTexturesSettings(PropertyGroup):

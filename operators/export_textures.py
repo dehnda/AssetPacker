@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import bpy
@@ -20,6 +21,10 @@ class TextureExporterOperator(Operator):
     def execute(self, context: Context):
         # TODO check if textures are set
         settings = context.scene.pbr_textures_settings
+        target_path = settings.folder_export_path
+
+        self.export_lods(context, target_path)
+
         self.export_texture(settings.albedo, context)
         self.export_texture(settings.ao, context)
         self.export_texture(settings.displacement, context)
@@ -29,6 +34,26 @@ class TextureExporterOperator(Operator):
         self.export_texture(settings.emission, context)
 
         return {"FINISHED"}
+
+    def export_lods(self, context: Context, target_path: str):
+        lods = [
+            context.scene.decimate_settings.lod_mesh_0,
+            context.scene.decimate_settings.lod_mesh_1,
+            context.scene.decimate_settings.lod_mesh_2,
+            context.scene.decimate_settings.lod_mesh_3,
+        ]
+        path = (
+            context.scene.pbr_textures_settings.folder_export_base_path
+            + "/"
+            + target_path
+        )
+        if not os.path.exists(path):
+            os.mkdir(path)
+        for i, lod in enumerate(lods):
+            filename = path + "lod_" + str(i + 1) + ".fbx"
+            lod.select_set(True)
+            bpy.ops.export_scene.fbx(filepath=filename)
+            bpy.ops.object.select_all(action="DESELECT")
 
     def resize_and_save_image(
         self, image: Image, target_path: str, resolution: int, context: Context
@@ -51,7 +76,7 @@ class TextureExporterOperator(Operator):
                 context.scene.pbr_textures_settings.folder_export_base_path
                 + "/"
                 + target_path
-                + "/"
+                + "textures/"
                 + filename
             )
             image.save_render(filepath=path)
