@@ -24,7 +24,7 @@ class ImportFbxOperator(Operator, ImportHelper):
 
     def execute(self, context: Context):
         self.suffixes = {
-            "albedo": context.scene.suffix_settings.base_color,
+            "albedo": context.scene.suffix_settings.albedo,
             "ao": context.scene.suffix_settings.ao,
             "displacement": context.scene.suffix_settings.displacement,
             "metallic": context.scene.suffix_settings.metallic,
@@ -172,7 +172,7 @@ class ImportFbxOperator(Operator, ImportHelper):
                     texture_nodes[tex_type] = texture_node
 
         # assign current loaded textures to export settings
-        context.scene.pbr_textures_settings.base_color = texture_nodes["albedo"].image
+        context.scene.pbr_textures_settings.albedo = texture_nodes["albedo"].image
         context.scene.pbr_textures_settings.ao = texture_nodes["ao"].image
         context.scene.pbr_textures_settings.displacement = texture_nodes[
             "displacement"
@@ -180,7 +180,7 @@ class ImportFbxOperator(Operator, ImportHelper):
         context.scene.pbr_textures_settings.metallic = texture_nodes["metallic"].image
         context.scene.pbr_textures_settings.normal = texture_nodes["normal"].image
         context.scene.pbr_textures_settings.roughness = texture_nodes["roughness"].image
-        # context.scene.pbr_textures_settings.emission = texture_nodes["emission"].image
+        context.scene.pbr_textures_settings.emission = texture_nodes["emission"].image
 
         # link all maps
         for tex_type, node in texture_nodes.items():
@@ -211,12 +211,8 @@ class ImportFbxOperator(Operator, ImportHelper):
                     node.outputs["Color"], principled_node.inputs["Roughness"]
                 )
             elif tex_type == "emission":
-                emission_node = tree.nodes.new(type="ShaderNodeEmission")
-                emission_node.location = (-800, -600)
-                tree.links.new(node.outputs["Color"], emission_node.inputs["Color"])
                 tree.links.new(
-                    emission_node.outputs["Emission"],
-                    principled_node.inputs["Emission"],
+                    node.outputs["Color"], principled_node.inputs["Emission Color"]
                 )
 
     def files_in_folder(self, path):

@@ -12,7 +12,7 @@ class AP_PT_MainPanel(bpy.types.Panel):
 
     # TODO duplicate move out
     texture_names = [
-        "base_color",
+        "albedo",
         "metallic",
         "normal",
         "emission",

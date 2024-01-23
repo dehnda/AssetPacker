@@ -48,10 +48,10 @@ class GeneralSettings(PropertyGroup):
 
 
 class SuffixSettings(PropertyGroup):
-    base_color: StringProperty(
+    albedo: StringProperty(
         name="albedeo",
-        description="Suffix for base_color texture.",
-        default="base_color",
+        description="Suffix for albedo texture.",
+        default="albedo",
     )
     metallic: StringProperty(
         name="metallic", description="Suffix for metallic texture.", default="metallic"
@@ -109,11 +109,11 @@ class DecimateSettings(PropertyGroup):
 
 
 class PBRTexturesSettings(PropertyGroup):
-    base_color: PointerProperty(name="Base Color", type=Image)
+    albedo: PointerProperty(name="Base Color", type=Image)
     metallic: PointerProperty(name="Metallic", type=Image)
     normal: PointerProperty(name="Normal", type=Image)
     emission: PointerProperty(name="Emission", type=Image)
-    displacment: PointerProperty(name="Displacement", type=Image)
+    displacement: PointerProperty(name="Displacement", type=Image)
     ao: PointerProperty(name="Ambient Occlusion", type=Image)
     roughness: PointerProperty(name="Roughness", type=Image)
     opacity: PointerProperty(name="Opacity", type=Image)
@@ -124,13 +124,13 @@ class PBRTexturesSettings(PropertyGroup):
     export_resolutions: EnumProperty(
         name="export_resolutions",
         items=[
-            ("4k", "4k", "4096x4096"),
-            ("2k", "2k", "2048x2048"),
-            ("1k", "1k", "1024x1024"),
+            ("4096", "4k", "4096x4096"),
+            ("2048", "2k", "2048x2048"),
+            ("1024", "1k", "1024x1024"),
             ("512", "512", "512x512"),
         ],
         options={"ENUM_FLAG"},
-        default={"4k", "2k", "1k", "512"},
+        default={"4096", "2048", "1024", "512"},
     )
     folder_export_base_path: StringProperty(name="folder_export_base_path")
 
