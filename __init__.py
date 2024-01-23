@@ -121,9 +121,7 @@ class PBRTexturesSettings(PropertyGroup):
     ao: PointerProperty(name="Ambient Occlusion", type=Image)
     roughness: PointerProperty(name="Roughness", type=Image)
     opacity: PointerProperty(name="Opacity", type=Image)
-    folder_export_path: StringProperty(
-        name="folder_export_path", subtype="DIR_PATH", default="export/"
-    )
+    folder_export_path: StringProperty(name="folder_export_path", default="export/")
     export_lods: BoolProperty(name="export_lods", default=True)
     export_resolutions: EnumProperty(
         name="export_resolutions",
