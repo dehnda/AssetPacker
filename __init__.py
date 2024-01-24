@@ -20,11 +20,11 @@ from bpy.props import (
     CollectionProperty,
 )
 
-from AssetPacker.gui.main_panel import AP_PT_MainPanel
-from AssetPacker.gui.decimate_tab import AP_PT_TabDecimate
-from AssetPacker.gui.export_tab import AP_PT_ExportTab
-from AssetPacker.operators.import_fbx import ImportFbxOperator
-from AssetPacker.operators.export_textures import TextureExporterOperator
+from .gui.main_panel import AP_PT_MainPanel
+from .gui.decimate_tab import AP_PT_TabDecimate
+from .gui.export_tab import AP_PT_ExportTab
+from .operators.import_fbx import ImportFbxOperator
+from .operators.export_textures import TextureExporterOperator
 
 
 LAYOUTS = (AP_PT_MainPanel, AP_PT_TabDecimate, AP_PT_ExportTab)
